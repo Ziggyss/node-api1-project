@@ -11,7 +11,40 @@ server.get("/api/users", getAllUsers);
 server.get("/api/users/:id", getUserById);
 server.post("/api/users", postNewUser);
 server.delete("/api/users/:id", deleteUser);
+server.put("/api/users/:id", updateUser);
 server.get("*", handleDefault);
+
+function updateUser(req, res) {
+  const { id } = req.params;
+  const user = req.body;
+
+  if (!id) {
+    res.status(404).json({
+      success: false,
+      message: "The user with the specified ID does not exist."
+    });
+  } else if (!user.name || !user.bio) {
+    res.status(400).json({
+      success: false,
+      message: "Please provide name and bio for the user"
+    });
+  } else {
+    db.update(id, user)
+      .then(updated => {
+        res.status(200).json({
+          success: true,
+          message: "User updated",
+          updated
+        });
+      })
+      .catch(err => {
+        res.status(500).json({
+          success: false,
+          message: "The user information cound not be modified."
+        });
+      });
+  }
+}
 
 function deleteUser(req, res) {
   const { id } = req.params;
