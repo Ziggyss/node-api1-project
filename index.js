@@ -9,7 +9,36 @@ server.use(express.json());
 
 server.get("/api/users", getAllUsers);
 server.get("/api/users/:id", getUserById);
+server.post("/api/users", postNewUser);
 server.get("*", handleDefault);
+
+function postNewUser(req, res) {
+  const userInfo = {
+    name: req.body.name,
+    bio: req.body.bio
+  };
+
+  if (!userInfo.name || !userInfo.bio) {
+    res.status(404).json({
+      success: false,
+      message: "Please provide name and bio for the user."
+    });
+  }
+
+  db.insert(userInfo)
+    .then(userInfo => {
+      res.status(201).json({
+        success: true,
+        userInfo
+      });
+    })
+    .catch(err => {
+      res.status(500).json({
+        success: false,
+        message: "There was an error while saving the user to the database"
+      });
+    });
+}
 
 function getUserById(req, res) {
   db.findById(req.params.id)
