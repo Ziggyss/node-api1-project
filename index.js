@@ -10,7 +10,30 @@ server.use(express.json());
 server.get("/api/users", getAllUsers);
 server.get("/api/users/:id", getUserById);
 server.post("/api/users", postNewUser);
+server.delete("/api/users/:id", deleteUser);
 server.get("*", handleDefault);
+
+function deleteUser(req, res) {
+  const { id } = req.params;
+
+  db.remove(id)
+    .then(deleted => {
+      if (deleted) {
+        res.status(204).end();
+      } else {
+        res.status(404).json({
+          success: false,
+          message: "The user with the specified ID does not exist."
+        });
+      }
+    })
+    .catch(err => {
+      res.status(500).json({
+        success: false,
+        message: "The user could not be removed"
+      });
+    });
+}
 
 function postNewUser(req, res) {
   const userInfo = {
